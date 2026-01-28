@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   Bus, 
@@ -9,53 +8,21 @@ import {
   User, 
   Bell,
   Plus,
-  ArrowLeft
+  ArrowLeft,
+  Settings
 } from "lucide-react";
 import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { useMyReservations } from "@/hooks/useTrips";
+import { Badge } from "@/components/ui/badge";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { profile, roles, isDriver, isAdmin, signOut, isLoading } = useAuth();
+  const { data: reservations } = useMyReservations();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/login");
-        return;
-      }
-      setUser(session.user);
-      setLoading(false);
-    };
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === "SIGNED_OUT") {
-          navigate("/login");
-        } else if (session) {
-          setUser(session.user);
-        }
-      }
-    );
-
-    checkAuth();
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast({
-      title: "تم تسجيل الخروج",
-      description: "نورتنا! نستناك تاني",
-    });
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent" />
@@ -63,15 +30,17 @@ const Dashboard = () => {
     );
   }
 
-  const userName = user?.user_metadata?.name || "مستخدم";
-  const userRole = user?.user_metadata?.role || "passenger";
+  const userName = profile?.name || "مستخدم";
+  const activeReservations = reservations?.filter(
+    (r) => r.status === "pending" || r.status === "confirmed"
+  );
 
   const quickActions = [
     {
       icon: Plus,
       title: "حجز جديد",
       description: "احجز مكانك في الرحلة القادمة",
-      href: "/book",
+      href: "/trips",
       color: "bg-primary",
     },
     {
@@ -101,16 +70,27 @@ const Dashboard = () => {
             </Link>
 
             <div className="flex items-center gap-4">
+              {isAdmin && (
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/admin">
+                    <Settings className="h-4 w-4 ml-2" />
+                    لوحة التحكم
+                  </Link>
+                </Button>
+              )}
+              
               <button className="relative p-2 hover:bg-accent/20 rounded-lg transition-smooth">
                 <Bell className="h-5 w-5 text-muted-foreground" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
+                {activeReservations && activeReservations.length > 0 && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
+                )}
               </button>
               
               <div className="flex items-center gap-3">
                 <div className="hidden sm:block text-left">
                   <p className="text-sm font-medium text-foreground">{userName}</p>
                   <p className="text-xs text-muted-foreground">
-                    {userRole === "driver" ? "سائق" : "راكب"}
+                    {isAdmin ? "مدير" : isDriver ? "سائق" : "راكب"}
                   </p>
                 </div>
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -164,22 +144,45 @@ const Dashboard = () => {
             </Button>
           </div>
 
-          <div className="card-soft p-8 text-center">
-            <Bus className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-            <p className="text-muted-foreground mb-4">
-              مش عندك حجوزات حالياً
-            </p>
-            <Button variant="accent" asChild>
-              <Link to="/book">
-                <Plus className="h-4 w-4 ml-2" />
-                احجز رحلتك الأولى
-              </Link>
-            </Button>
-          </div>
+          {!activeReservations || activeReservations.length === 0 ? (
+            <div className="card-soft p-8 text-center">
+              <Bus className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+              <p className="text-muted-foreground mb-4">
+                مش عندك حجوزات حالياً
+              </p>
+              <Button variant="accent" asChild>
+                <Link to="/trips">
+                  <Plus className="h-4 w-4 ml-2" />
+                  احجز رحلتك الأولى
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {activeReservations.slice(0, 3).map((reservation) => (
+                <div key={reservation.id} className="card-soft p-4 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Bus className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-foreground">
+                      {reservation.trips?.origin} → {reservation.trips?.destination}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {reservation.trips?.trip_date} | الطابور #{reservation.queue_position}
+                    </p>
+                  </div>
+                  <Badge variant={reservation.status === "confirmed" ? "default" : "secondary"}>
+                    {reservation.status === "confirmed" ? "مؤكد" : "في الانتظار"}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
-        {/* Stats for drivers */}
-        {userRole === "driver" && (
+        {/* Driver Stats */}
+        {isDriver && (
           <section className="mb-10">
             <h2 className="text-xl font-bold text-foreground mb-6">إحصائياتك</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -200,7 +203,11 @@ const Dashboard = () => {
 
         {/* Logout */}
         <div className="text-center">
-          <Button variant="ghost" onClick={handleLogout} className="text-destructive hover:text-destructive hover:bg-destructive/10">
+          <Button 
+            variant="ghost" 
+            onClick={signOut} 
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
             <LogOut className="h-4 w-4 ml-2" />
             تسجيل الخروج
           </Button>
