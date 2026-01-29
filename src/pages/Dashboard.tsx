@@ -9,18 +9,23 @@ import {
   Bell,
   Plus,
   ArrowLeft,
-  Settings
+  Settings,
+  Car
 } from "lucide-react";
 import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useMyReservations } from "@/hooks/useTrips";
+import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import { Badge } from "@/components/ui/badge";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { profile, roles, isDriver, isAdmin, signOut, isLoading } = useAuth();
+  const { profile, roles, isDriver, isAdmin, isApprovedDriver, signOut, isLoading } = useAuth();
   const { data: reservations } = useMyReservations();
+  
+  // Enable realtime notifications
+  useRealtimeNotifications();
 
   if (isLoading) {
     return (
@@ -70,6 +75,15 @@ const Dashboard = () => {
             </Link>
 
             <div className="flex items-center gap-4">
+              {isApprovedDriver && (
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/driver">
+                    <Car className="h-4 w-4 ml-2" />
+                    لوحة السائق
+                  </Link>
+                </Button>
+              )}
+              
               {isAdmin && (
                 <Button variant="outline" size="sm" asChild>
                   <Link to="/admin">

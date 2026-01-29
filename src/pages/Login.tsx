@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
+import { Separator } from "@/components/ui/separator";
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -128,6 +129,19 @@ const Login = () => {
             >
               {isLoading ? "جاري الدخول..." : "تسجيل الدخول"}
             </Button>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <Separator className="w-full" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  أو
+                </span>
+              </div>
+            </div>
+
+            <GoogleSignInButton className="w-full" />
           </form>
 
           <p className="mt-8 text-center text-muted-foreground">

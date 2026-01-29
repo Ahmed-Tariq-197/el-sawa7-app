@@ -12,6 +12,7 @@ import {
   Check,
   AlertCircle,
   Loader2,
+  ShieldCheck,
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateReservation, useTripQueue, useTripVotes, useVoteForExtraCar } from "@/hooks/useTrips";
+import { useValidateReceipt } from "@/hooks/useValidateReceipt";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 
@@ -36,11 +38,17 @@ const BookTrip = () => {
   const [transactionId, setTransactionId] = useState("");
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [receiptValidation, setReceiptValidation] = useState<{
+    isValid: boolean;
+    confidence: number;
+    checked: boolean;
+  } | null>(null);
 
   const { data: queue } = useTripQueue(tripId || "");
   const { data: votesCount } = useTripVotes(tripId || "");
   const createReservation = useCreateReservation();
   const voteForExtraCar = useVoteForExtraCar();
+  const validateReceipt = useValidateReceipt();
 
   useEffect(() => {
     const fetchTrip = async () => {
@@ -86,6 +94,37 @@ const BookTrip = () => {
     }
 
     setPaymentProof(file);
+    setReceiptValidation(null);
+    
+    // Upload temporarily for AI validation
+    try {
+      if (!user) return;
+      
+      const fileExt = file.name.split(".").pop();
+      const tempPath = `${user.id}/temp-${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from("payment-proofs")
+        .upload(tempPath, file);
+        
+      if (uploadError) throw uploadError;
+      
+      // Validate with AI
+      const result = await validateReceipt.mutateAsync({
+        imageUrl: tempPath,
+        expectedAmount: trip?.price * seatsCount,
+      });
+      
+      setReceiptValidation({
+        isValid: result.isValid,
+        confidence: result.confidence,
+        checked: true,
+      });
+    } catch (error) {
+      console.error("Validation error:", error);
+      // Don't block booking if validation fails - admin will review
+      setReceiptValidation({ isValid: false, confidence: 0, checked: true });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -377,10 +416,30 @@ const BookTrip = () => {
                           }
                         `}
                       >
-                        {paymentProof ? (
-                          <div className="flex items-center gap-2 text-primary">
-                            <Check className="h-6 w-6" />
-                            <span className="font-medium">{paymentProof.name}</span>
+                        {validateReceipt.isPending ? (
+                          <div className="flex flex-col items-center text-muted-foreground">
+                            <Loader2 className="h-8 w-8 mb-2 animate-spin text-primary" />
+                            <span>جاري التحقق من الإيصال...</span>
+                          </div>
+                        ) : paymentProof ? (
+                          <div className="flex flex-col items-center">
+                            <div className="flex items-center gap-2 text-primary mb-1">
+                              <Check className="h-6 w-6" />
+                              <span className="font-medium">{paymentProof.name}</span>
+                            </div>
+                            {receiptValidation?.checked && (
+                              <div className={`flex items-center gap-1 text-sm ${
+                                receiptValidation.isValid 
+                                  ? "text-elsawa7-success" 
+                                  : "text-accent"
+                              }`}>
+                                <ShieldCheck className="h-4 w-4" />
+                                {receiptValidation.isValid 
+                                  ? `تم التحقق ✓ (${receiptValidation.confidence}%)`
+                                  : "سيتم المراجعة يدوياً"
+                                }
+                              </div>
+                            )}
                           </div>
                         ) : (
                           <div className="flex flex-col items-center text-muted-foreground">
@@ -395,6 +454,7 @@ const BookTrip = () => {
                           accept="image/*"
                           className="hidden"
                           onChange={handleFileUpload}
+                          disabled={validateReceipt.isPending}
                         />
                       </label>
                     </div>
