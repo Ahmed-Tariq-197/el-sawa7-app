@@ -16,6 +16,7 @@ import BookTrip from "./pages/BookTrip";
 import MyBookings from "./pages/MyBookings";
 import DriverPending from "./pages/driver/DriverPending";
 import UploadLicense from "./pages/driver/UploadLicense";
+import DriverDashboard from "./pages/driver/DriverDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminReservations from "./pages/admin/AdminReservations";
 import AdminDrivers from "./pages/admin/AdminDrivers";
@@ -68,6 +69,14 @@ const App = () => (
             />
 
             {/* Driver Routes */}
+            <Route
+              path="/driver"
+              element={
+                <ProtectedRoute requiredRole="driver">
+                  <DriverDashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/driver/pending"
               element={

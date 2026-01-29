@@ -13,6 +13,7 @@ import { useState } from "react";
 import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdminRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import { cn } from "@/lib/utils";
 
 interface AdminLayoutProps {
@@ -31,6 +32,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const { signOut, profile } = useAuth();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Enable admin realtime notifications
+  useAdminRealtimeNotifications();
 
   return (
     <div className="min-h-screen bg-background flex">
