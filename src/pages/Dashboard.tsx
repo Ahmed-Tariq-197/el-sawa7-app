@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useMyReservations } from "@/hooks/useTrips";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import { Badge } from "@/components/ui/badge";
+import { NotificationToggle } from "@/components/NotificationToggle";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -93,12 +94,7 @@ const Dashboard = () => {
                 </Button>
               )}
               
-              <button className="relative p-2 hover:bg-accent/20 rounded-lg transition-smooth">
-                <Bell className="h-5 w-5 text-muted-foreground" />
-                {activeReservations && activeReservations.length > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
-                )}
-              </button>
+              <NotificationToggle />
               
               <div className="flex items-center gap-3">
                 <div className="hidden sm:block text-left">
