@@ -10,6 +10,8 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Trips from "./pages/Trips";
 import BookTrip from "./pages/BookTrip";
@@ -22,6 +24,8 @@ import AdminReservations from "./pages/admin/AdminReservations";
 import AdminDrivers from "./pages/admin/AdminDrivers";
 import AdminCars from "./pages/admin/AdminCars";
 import AdminTrips from "./pages/admin/AdminTrips";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminQReport from "./pages/admin/AdminQReport";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +44,8 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/trips" element={<Trips />} />
 
             {/* Protected Routes */}
@@ -132,6 +138,22 @@ const App = () => (
               element={
                 <ProtectedRoute requiredRole="admin">
                   <AdminTrips />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/analytics"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminAnalytics />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/q-report"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminQReport />
                 </ProtectedRoute>
               }
             />

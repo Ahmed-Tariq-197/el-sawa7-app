@@ -8,6 +8,8 @@ import {
   Menu,
   X,
   LogOut,
+  BarChart3,
+  AlertTriangle,
 } from "lucide-react";
 import { useState } from "react";
 import Logo from "@/components/Logo";
@@ -26,6 +28,8 @@ const navItems = [
   { href: "/admin/drivers", label: "السائقين", icon: Users },
   { href: "/admin/cars", label: "العربيات", icon: Car },
   { href: "/admin/trips", label: "الرحلات", icon: MapPin },
+  { href: "/admin/analytics", label: "الإحصائيات", icon: BarChart3 },
+  { href: "/admin/q-report", label: "تقرير Q", icon: AlertTriangle },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {
