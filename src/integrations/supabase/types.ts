@@ -348,6 +348,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_driver_trip_passengers: {
+        Args: { trip_uuid: string }
+        Returns: {
+          passenger_name: string
+          passenger_phone: string
+          payment_status: string
+          queue_position: number
+          reservation_id: string
+          seats_count: number
+          status: string
+        }[]
+      }
+      get_passenger_name: { Args: { passenger_id: string }; Returns: string }
+      get_trip_queue: {
+        Args: { trip_uuid: string }
+        Returns: {
+          passenger_name: string
+          queue_position: number
+          seats_count: number
+          status: string
+        }[]
+      }
+      get_trip_vote_count: { Args: { trip_uuid: string }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

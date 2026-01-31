@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
-import { Shield, Users, Award, Target, CheckCircle2 } from "lucide-react";
+import { Shield, Users, Award, Target, CheckCircle2, Car, MapPin } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { usePublicStats } from "@/hooks/usePublicStats";
 
 const About = () => {
+  const { data: stats } = usePublicStats();
+
   const values = [
     {
       icon: Shield,
@@ -27,11 +30,24 @@ const About = () => {
     },
   ];
 
-  const stats = [
-    { number: "+500", label: "طالب مسجل" },
-    { number: "+50", label: "سائق معتمد" },
-    { number: "+1000", label: "رحلة مكتملة" },
-    { number: "٤.٩", label: "تقييم المستخدمين" },
+  // Format numbers for display
+  const formatNumber = (num: number) => {
+    if (num >= 1000) {
+      return `+${Math.floor(num / 100) * 100}`;
+    }
+    return num > 0 ? `+${num}` : "٠";
+  };
+
+  const formatRating = (rating: number) => {
+    if (rating === 0) return "-";
+    return rating.toFixed(1).replace(".", "٫");
+  };
+
+  const statsDisplay = [
+    { number: formatNumber(stats?.totalStudents || 0), label: "طالب مسجل" },
+    { number: formatNumber(stats?.approvedDrivers || 0), label: "سائق معتمد" },
+    { number: formatNumber(stats?.completedTrips || 0), label: "رحلة مكتملة" },
+    { number: formatRating(stats?.averageRating || 0), label: "تقييم المستخدمين" },
   ];
 
   return (
@@ -53,7 +69,7 @@ const About = () => {
       <section className="py-12 border-b border-border">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat) => (
+            {statsDisplay.map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
                   {stat.number}

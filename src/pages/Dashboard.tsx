@@ -19,6 +19,8 @@ import { useMyReservations } from "@/hooks/useTrips";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import { Badge } from "@/components/ui/badge";
 import { NotificationToggle } from "@/components/NotificationToggle";
+import { ProfileAvatarUpload } from "@/components/ProfileAvatarUpload";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -103,9 +105,12 @@ const Dashboard = () => {
                     {isAdmin ? "مدير" : isDriver ? "سائق" : "راكب"}
                   </p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User className="h-5 w-5 text-primary" />
-                </div>
+                <Avatar className="h-10 w-10 border-2 border-primary/20">
+                  <AvatarImage src={profile?.avatar_url || undefined} alt={userName} />
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    <User className="h-5 w-5" />
+                  </AvatarFallback>
+                </Avatar>
               </div>
             </div>
           </div>
@@ -113,14 +118,17 @@ const Dashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-            أهلاً، {userName}! 👋
-          </h1>
-          <p className="text-muted-foreground">
-            إيه اللي عايز تعمله النهاردة؟
-          </p>
+        {/* Welcome Section with Profile Upload */}
+        <div className="mb-8 flex flex-col md:flex-row items-start md:items-center gap-6">
+          <ProfileAvatarUpload />
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+              أهلاً، {userName}! 👋
+            </h1>
+            <p className="text-muted-foreground">
+              إيه اللي عايز تعمله النهاردة؟
+            </p>
+          </div>
         </div>
 
         {/* Quick Actions */}

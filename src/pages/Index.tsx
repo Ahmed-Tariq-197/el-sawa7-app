@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Shield, Clock, Users, Smartphone, CheckCircle2, Star } from "lucide-react";
+import { ArrowLeft, Shield, Clock, Users, Smartphone, CheckCircle2, Star, Car, MapPin, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
 import heroImage from "@/assets/hero-image.jpg";
+import { usePublicStats } from "@/hooks/usePublicStats";
 
 const Index = () => {
+  const { data: stats } = usePublicStats();
+
   const features = [
     {
       icon: Shield,
@@ -33,6 +36,42 @@ const Index = () => {
     { number: "٢", title: "اختار رحلتك", description: "حدد الوجهة والعربية المناسبة" },
     { number: "٣", title: "ادفع واحجز", description: "ادفع عبر فودافون كاش وأكد حجزك" },
     { number: "٤", title: "استمتع برحلتك", description: "تابع ترتيبك واستعد للانطلاق" },
+  ];
+
+  // Format number for Arabic display
+  const formatNumber = (num: number) => {
+    if (num >= 1000) {
+      return `+${Math.floor(num / 100) * 100}`;
+    }
+    return num > 0 ? `+${num}` : "٠";
+  };
+
+  const formatRating = (rating: number) => {
+    if (rating === 0) return "-";
+    return rating.toFixed(1).replace(".", "٫");
+  };
+
+  const statsDisplay = [
+    { 
+      icon: Users, 
+      number: formatNumber(stats?.totalStudents || 0), 
+      label: "طالب مسجل" 
+    },
+    { 
+      icon: Car, 
+      number: formatNumber(stats?.approvedDrivers || 0), 
+      label: "سائق معتمد" 
+    },
+    { 
+      icon: MapPin, 
+      number: formatNumber(stats?.completedTrips || 0), 
+      label: "رحلة مكتملة" 
+    },
+    { 
+      icon: Award, 
+      number: formatRating(stats?.averageRating || 0), 
+      label: "تقييم المستخدمين" 
+    },
   ];
 
   return (
@@ -93,6 +132,25 @@ const Index = () => {
                 <span className="text-sm text-muted-foreground">دعم فوري</span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-12 border-b border-border bg-card/50">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {statsDisplay.map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <stat.icon className="h-6 w-6 text-primary" />
+                </div>
+                <div className="text-3xl md:text-4xl font-bold text-primary mb-1">
+                  {stat.number}
+                </div>
+                <div className="text-sm text-muted-foreground">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
