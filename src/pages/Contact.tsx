@@ -29,19 +29,22 @@ const Contact = () => {
     {
       icon: Phone,
       title: "الهاتف",
-      value: "+20 123 456 7890",
+      value: "01015556416",
+      href: "tel:+201015556416",
       description: "متاحين من ٩ صباحاً لـ ٩ مساءً",
     },
     {
       icon: Mail,
       title: "البريد الإلكتروني",
-      value: "support@elsawa7.com",
+      value: "support@el-sawa7.lovable.app",
+      href: "mailto:support@el-sawa7.lovable.app",
       description: "رد خلال ٢٤ ساعة",
     },
     {
       icon: MapPin,
       title: "العنوان",
       value: "القاهرة، مصر",
+      href: null,
       description: "المقر الرئيسي",
     },
   ];
@@ -167,7 +170,13 @@ const Contact = () => {
                         <h3 className="font-semibold text-foreground">
                           {info.title}
                         </h3>
-                        <p className="text-primary font-medium">{info.value}</p>
+                        {info.href ? (
+                          <a href={info.href} className="text-primary font-medium hover:underline">
+                            {info.value}
+                          </a>
+                        ) : (
+                          <p className="text-primary font-medium">{info.value}</p>
+                        )}
                         <p className="text-sm text-muted-foreground">
                           {info.description}
                         </p>
