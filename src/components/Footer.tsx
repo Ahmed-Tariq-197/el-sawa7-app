@@ -26,6 +26,9 @@ const Footer = forwardRef<HTMLElement, object>((_, ref) => {
               <Link to="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                 عن المنصة
               </Link>
+              <Link to="/faq" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                الأسئلة الشائعة
+              </Link>
               <Link to="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                 تواصل معنا
               </Link>
@@ -44,11 +47,11 @@ const Footer = forwardRef<HTMLElement, object>((_, ref) => {
                 01015556416
               </a>
               <a 
-                href="mailto:support@el-sawa7.lovable.app" 
+                href="mailto:support@elsawa7.com" 
                 className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
               >
                 <Mail className="h-4 w-4" />
-                support@el-sawa7.lovable.app
+                support@elsawa7.com
               </a>
             </div>
           </div>

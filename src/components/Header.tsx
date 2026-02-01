@@ -10,7 +10,9 @@ const Header = () => {
 
   const navItems = [
     { path: "/", label: "الرئيسية" },
+    { path: "/trips", label: "الرحلات" },
     { path: "/about", label: "عن المنصة" },
+    { path: "/faq", label: "الأسئلة الشائعة" },
     { path: "/contact", label: "تواصل معنا" },
   ];
 
