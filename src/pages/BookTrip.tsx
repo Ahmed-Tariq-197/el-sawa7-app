@@ -377,7 +377,10 @@ const BookTrip = () => {
                     على الرقم:
                   </p>
                   <p className="text-xl font-bold text-primary mt-1" dir="ltr">
-                    01012345678
+                    01015556416
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    (Vodafone Cash)
                   </p>
                 </div>
 

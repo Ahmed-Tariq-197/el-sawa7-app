@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Bus,
@@ -10,12 +11,15 @@ import {
   Loader2,
   AlertCircle,
   ArrowLeft,
+  Star,
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useMyReservations, useCancelReservation, Reservation } from "@/hooks/useTrips";
 import { useAuth } from "@/hooks/useAuth";
+import { useHasRatedReservation } from "@/hooks/useDriverRating";
+import { DriverRatingModal } from "@/components/DriverRatingModal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -164,6 +168,7 @@ const MyBookings = () => {
                       getPaymentStatusBadge={getPaymentStatusBadge}
                       onCancel={() => cancelReservation.mutate(reservation.id)}
                       isCancelling={cancelReservation.isPending}
+                      userId={user?.id}
                     />
                   ))}
                 </div>
@@ -187,6 +192,7 @@ const MyBookings = () => {
                       getStatusBadge={getStatusBadge}
                       getPaymentStatusBadge={getPaymentStatusBadge}
                       isPast
+                      userId={user?.id}
                     />
                   ))}
                 </div>
@@ -208,6 +214,7 @@ interface ReservationCardProps {
   onCancel?: () => void;
   isCancelling?: boolean;
   isPast?: boolean;
+  userId?: string;
 }
 
 function ReservationCard({
@@ -219,8 +226,13 @@ function ReservationCard({
   onCancel,
   isCancelling,
   isPast,
+  userId,
 }: ReservationCardProps) {
   const trip = reservation.trips;
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const { data: hasRated } = useHasRatedReservation(reservation.id);
+  
+  const canRate = reservation.status === "completed" && trip?.driver_id && !hasRated;
 
   return (
     <div
@@ -285,6 +297,35 @@ function ReservationCard({
               {trip?.price ? trip.price * reservation.seats_count : 0} ج.م
             </p>
           </div>
+
+          {/* Rating Button for Completed Trips */}
+          {canRate && userId && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-4 text-accent border-accent hover:bg-accent/10"
+                onClick={() => setShowRatingModal(true)}
+              >
+                <Star className="h-4 w-4 ml-1" />
+                قيّم السائق
+              </Button>
+              <DriverRatingModal
+                isOpen={showRatingModal}
+                onClose={() => setShowRatingModal(false)}
+                reservationId={reservation.id}
+                driverId={trip.driver_id!}
+                passengerId={userId}
+              />
+            </>
+          )}
+
+          {hasRated && (
+            <p className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
+              <Star className="h-3 w-3 fill-accent text-accent" />
+              تم التقييم
+            </p>
+          )}
 
           {!isPast && reservation.status === "pending" && onCancel && (
             <AlertDialog>

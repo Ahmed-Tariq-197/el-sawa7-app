@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Mail, Phone, MapPin, Send, MessageCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,8 +37,8 @@ const Contact = () => {
     {
       icon: Mail,
       title: "البريد الإلكتروني",
-      value: "support@el-sawa7.lovable.app",
-      href: "mailto:support@el-sawa7.lovable.app",
+      value: "support@elsawa7.com",
+      href: "mailto:support@elsawa7.com",
       description: "رد خلال ٢٤ ساعة",
     },
     {
@@ -194,8 +195,8 @@ const Contact = () => {
                 <p className="text-muted-foreground text-sm mb-4">
                   ممكن تلاقي إجابة سؤالك في صفحة الأسئلة الشائعة
                 </p>
-                <Button variant="accent-outline" size="sm">
-                  الأسئلة الشائعة
+                <Button variant="accent-outline" size="sm" asChild>
+                  <Link to="/faq">الأسئلة الشائعة</Link>
                 </Button>
               </div>
             </div>
