@@ -25,6 +25,22 @@ const Register = () => {
     confirmPassword: "",
   });
 
+  const validatePassword = (password: string): string | null => {
+    if (password.length < 8) {
+      return "كلمة المرور لازم تكون ٨ حروف على الأقل";
+    }
+    
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    
+    if (!hasUpperCase || !hasLowerCase || !hasNumber) {
+      return "كلمة المرور لازم تحتوي على حروف كبيرة وصغيرة وأرقام";
+    }
+    
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -37,10 +53,11 @@ const Register = () => {
       return;
     }
 
-    if (formData.password.length < 8) {
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) {
       toast({
         title: "خطأ",
-        description: "كلمة المرور لازم تكون ٨ حروف على الأقل",
+        description: passwordError,
         variant: "destructive",
       });
       return;
@@ -206,7 +223,7 @@ const Register = () => {
                 <Input
                   type={showPassword ? "text" : "password"}
                   required
-                  placeholder="٨ حروف على الأقل"
+                  placeholder="حروف كبيرة وصغيرة وأرقام"
                   value={formData.password}
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
