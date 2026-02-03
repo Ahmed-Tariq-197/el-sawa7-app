@@ -12,6 +12,7 @@ import {
   AlertCircle,
   ArrowLeft,
   Star,
+  Navigation,
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import { useMyReservations, useCancelReservation, Reservation } from "@/hooks/us
 import { useAuth } from "@/hooks/useAuth";
 import { useHasRatedReservation } from "@/hooks/useDriverRating";
 import { DriverRatingModal } from "@/components/DriverRatingModal";
+import { PassengerTrackingMap } from "@/components/PassengerTrackingMap";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -297,6 +299,13 @@ function ReservationCard({
               {trip?.price ? trip.price * reservation.seats_count : 0} ج.م
             </p>
           </div>
+
+          {/* Driver Tracking for Confirmed Reservations */}
+          {reservation.status === "confirmed" && trip && (
+            <div className="mt-4 w-full">
+              <PassengerTrackingMap tripId={trip.id} />
+            </div>
+          )}
 
           {/* Rating Button for Completed Trips */}
           {canRate && userId && (
