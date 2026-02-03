@@ -25,6 +25,22 @@ const Register = () => {
     confirmPassword: "",
   });
 
+  const validatePhone = (phone: string): string | null => {
+    // Egyptian phone number format: +20XXXXXXXXXX or 01XXXXXXXXXX
+    const egyptianPhoneRegex = /^(\+20|0)[1-9][0-9]{9}$/;
+    const cleanPhone = phone.replace(/\s/g, "");
+    
+    if (!cleanPhone) {
+      return "رقم الهاتف مطلوب";
+    }
+    
+    if (!egyptianPhoneRegex.test(cleanPhone)) {
+      return "رقم الهاتف لازم يكون رقم مصري صحيح (مثال: 01XXXXXXXXX)";
+    }
+    
+    return null;
+  };
+
   const validatePassword = (password: string): string | null => {
     if (password.length < 8) {
       return "كلمة المرور لازم تكون ٨ حروف على الأقل";
@@ -48,6 +64,16 @@ const Register = () => {
       toast({
         title: "خطأ",
         description: "كلمة المرور مش متطابقة",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const phoneError = validatePhone(formData.phone);
+    if (phoneError) {
+      toast({
+        title: "خطأ",
+        description: phoneError,
         variant: "destructive",
       });
       return;
