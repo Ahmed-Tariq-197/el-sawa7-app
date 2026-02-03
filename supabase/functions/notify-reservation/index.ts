@@ -183,46 +183,54 @@ ElSawa7 - 01015556416
     // Send SMS
     if (TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_PHONE_NUMBER && userPhone) {
       try {
-        let formattedPhone = userPhone.replace(/\s/g, "");
-        if (formattedPhone.startsWith("0")) {
-          formattedPhone = "+20" + formattedPhone.substring(1);
-        } else if (!formattedPhone.startsWith("+")) {
-          formattedPhone = "+20" + formattedPhone;
-        }
+        // Validate Egyptian phone number format before sending
+        const cleanPhone = userPhone.replace(/\s/g, "");
+        const egyptianPhoneRegex = /^(\+20|0)[1-9][0-9]{9}$/;
+        
+        if (!egyptianPhoneRegex.test(cleanPhone)) {
+          console.error("Invalid phone format, skipping SMS:", cleanPhone);
+        } else {
+          let formattedPhone = cleanPhone;
+          if (formattedPhone.startsWith("0")) {
+            formattedPhone = "+20" + formattedPhone.substring(1);
+          } else if (!formattedPhone.startsWith("+")) {
+            formattedPhone = "+20" + formattedPhone;
+          }
 
-        const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
-        const authHeader = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
+          const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
+          const authHeader = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
 
-        // Shorter SMS version
-        let smsMessage = "";
-        switch (type) {
-          case "confirmed":
-            smsMessage = `ElSawa7: تم تأكيد حجزك ✅\n${trip.origin}→${trip.destination}\n${trip.trip_date} ${trip.departure_time}\nترتيبك: #${reservation.queue_position}`;
-            break;
-          case "cancelled":
-            smsMessage = `ElSawa7: تم إلغاء حجزك ❌\n${trip.origin}→${trip.destination}\n${trip.trip_date}\nللتواصل: 01015556416`;
-            break;
-          case "reminder":
-            smsMessage = `ElSawa7: تذكير برحلتك غداً ⏰\n${trip.origin}→${trip.destination}\n${trip.departure_time}\nترتيبك: #${reservation.queue_position}`;
-            break;
-        }
+          // Shorter SMS version
+          let smsMessage = "";
+          switch (type) {
+            case "confirmed":
+              smsMessage = `ElSawa7: تم تأكيد حجزك ✅\n${trip.origin}→${trip.destination}\n${trip.trip_date} ${trip.departure_time}\nترتيبك: #${reservation.queue_position}`;
+              break;
+            case "cancelled":
+              smsMessage = `ElSawa7: تم إلغاء حجزك ❌\n${trip.origin}→${trip.destination}\n${trip.trip_date}\nللتواصل: 01015556416`;
+              break;
+            case "reminder":
+              smsMessage = `ElSawa7: تذكير برحلتك غداً ⏰\n${trip.origin}→${trip.destination}\n${trip.departure_time}\nترتيبك: #${reservation.queue_position}`;
+              break;
+          }
 
-        const smsResponse = await fetch(twilioUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            Authorization: `Basic ${authHeader}`,
-          },
-          body: new URLSearchParams({
-            To: formattedPhone,
-            From: TWILIO_PHONE_NUMBER,
-            Body: smsMessage,
-          }),
-        });
+          const smsResponse = await fetch(twilioUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              Authorization: `Basic ${authHeader}`,
+            },
+            body: new URLSearchParams({
+              To: formattedPhone,
+              From: TWILIO_PHONE_NUMBER,
+              Body: smsMessage,
+            }),
+          });
 
-        if (smsResponse.ok) {
-          results.sms = true;
-          console.log("SMS sent to:", formattedPhone);
+          if (smsResponse.ok) {
+            results.sms = true;
+            console.log("SMS sent to:", formattedPhone);
+          }
         }
       } catch (e) {
         console.error("SMS error:", e);

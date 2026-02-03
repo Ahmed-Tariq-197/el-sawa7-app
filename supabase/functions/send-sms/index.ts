@@ -71,8 +71,19 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Missing required fields: to, message");
     }
 
+    // Validate Egyptian phone number format
+    const cleanPhone = to.replace(/\s/g, "");
+    const egyptianPhoneRegex = /^(\+20|0)[1-9][0-9]{9}$/;
+    
+    if (!egyptianPhoneRegex.test(cleanPhone)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid Egyptian phone number format. Expected: +20XXXXXXXXXX or 01XXXXXXXXXX" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     // Format phone number for Egypt (add +20 if needed)
-    let formattedPhone = to.replace(/\s/g, "");
+    let formattedPhone = cleanPhone;
     if (formattedPhone.startsWith("0")) {
       formattedPhone = "+20" + formattedPhone.substring(1);
     } else if (!formattedPhone.startsWith("+")) {
