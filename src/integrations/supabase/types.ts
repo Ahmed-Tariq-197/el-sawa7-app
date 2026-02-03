@@ -83,6 +83,44 @@ export type Database = {
         }
         Relationships: []
       }
+      driver_positions: {
+        Row: {
+          accuracy_m: number | null
+          id: number
+          lat: number
+          lng: number
+          sent_at: string | null
+          session_id: string
+          speed_m_s: number | null
+        }
+        Insert: {
+          accuracy_m?: number | null
+          id?: number
+          lat: number
+          lng: number
+          sent_at?: string | null
+          session_id: string
+          speed_m_s?: number | null
+        }
+        Update: {
+          accuracy_m?: number | null
+          id?: number
+          lat?: number
+          lng?: number
+          sent_at?: string | null
+          session_id?: string
+          speed_m_s?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_positions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "driver_tracking_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       driver_profiles: {
         Row: {
           approved_at: string | null
@@ -121,6 +159,54 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      driver_tracking_sessions: {
+        Row: {
+          consent_at: string
+          created_at: string | null
+          driver_id: string
+          ended_at: string | null
+          id: string
+          started_at: string
+          status: string
+          trip_id: string
+        }
+        Insert: {
+          consent_at: string
+          created_at?: string | null
+          driver_id: string
+          ended_at?: string | null
+          id?: string
+          started_at: string
+          status?: string
+          trip_id: string
+        }
+        Update: {
+          consent_at?: string
+          created_at?: string | null
+          driver_id?: string
+          ended_at?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_tracking_sessions_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_tracking_sessions_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       passenger_ratings: {
         Row: {
@@ -236,6 +322,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sms_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          message: string
+          recipient_phone: string
+          status: string
+          test_mode: boolean
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message: string
+          recipient_phone: string
+          status?: string
+          test_mode?: boolean
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message?: string
+          recipient_phone?: string
+          status?: string
+          test_mode?: boolean
+        }
+        Relationships: []
       }
       trips: {
         Row: {
@@ -377,6 +493,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      purge_old_tracking_positions: {
+        Args: { retention_days?: number }
+        Returns: number
       }
     }
     Enums: {

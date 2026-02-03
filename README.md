@@ -1,53 +1,62 @@
-# Welcome to the best university transportation system for you (ElSawa7)
+# ElSawa7 - منصة نقل الطلاب
 
+تطبيق ويب لنقل الطلاب بين المدن المصرية.
 
-## How can I edit this code?
+## التقنيات المستخدمة
 
-There are several ways of editing your application.
+- React + TypeScript
+- Vite (بناء)
+- Tailwind CSS (تصميم)
+- Supabase (قاعدة البيانات، المصادقة، التخزين)
+- Tanstack Query (إدارة البيانات)
 
-**Use your preferred IDE**
+## البدء السريع
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. تثبيت المتطلبات:
+```bash
+npm install
+```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+2. تشغيل التطبيق محلياً:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## متغيرات البيئة
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+المتغيرات المطلوبة في ملف `.env`:
 
-**Use GitHub Codespaces**
+```
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### متغيرات اختيارية للتتبع
 
-## What technologies are used for this project?
+```
+MIN_TRACKING_INTERVAL_SECONDS=3     # الحد الأدنى لفاصل التتبع (ثواني)
+MAX_ACCURACY_METERS=200             # أقصى دقة مقبولة للموقع (متر)
+TRACKING_RETENTION_DAYS=7           # مدة الاحتفاظ بسجلات التتبع (أيام)
+REALTIME_TRACKING=false             # تفعيل التتبع الفوري
+SMS_TEST_MODE=true                  # وضع اختبار الرسائل النصية
+```
 
-This project is built with:
+## الميزات
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- ✅ حجز الرحلات
+- ✅ نظام الطوابير
+- ✅ إثبات الدفع (Vodafone Cash)
+- ✅ تتبع السائق (للركاب المؤكدين فقط)
+- ✅ لوحة تحكم الإدارة
+- ✅ تقييم السائقين
+- ✅ إشعارات فورية
 
+## الأمان
+
+- جميع الجداول محمية بـ Row Level Security (RLS)
+- التحقق من JWT في جميع Edge Functions
+- عدم كشف بيانات المستخدمين الحساسة
+
+## التطوير
+
+صنع بواسطة: Eng/ Ahmed Tariq

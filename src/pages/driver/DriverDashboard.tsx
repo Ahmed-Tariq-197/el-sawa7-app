@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useDriverTrips, useDriverTripQueue, useMarkPassengerComplete, useRatePassenger } from "@/hooks/useDriver";
 import { useDriverRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
+import { DriverTrackingControl } from "@/components/DriverTrackingControl";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import {
@@ -198,6 +199,13 @@ const DriverDashboard = () => {
                     </span>
                     <span>{trip.cars?.name} - {trip.cars?.plate_number}</span>
                   </div>
+                  
+                  {/* Tracking Control */}
+                  {(trip.status === "scheduled" || trip.status === "in_progress") && (
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <DriverTrackingControl tripId={trip.id} />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

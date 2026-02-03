@@ -1,0 +1,74 @@
+[
+  {
+    "origin": "القاهرة",
+    "destination": "المنصورة",
+    "trip_date": "2026-02-10",
+    "departure_time": "08:00",
+    "price": 150,
+    "available_seats": 10,
+    "status": "scheduled"
+  },
+  {
+    "origin": "القاهرة",
+    "destination": "الإسكندرية",
+    "trip_date": "2026-02-10",
+    "departure_time": "09:30",
+    "price": 200,
+    "available_seats": 8,
+    "status": "scheduled"
+  },
+  {
+    "origin": "المنصورة",
+    "destination": "القاهرة",
+    "trip_date": "2026-02-11",
+    "departure_time": "14:00",
+    "price": 150,
+    "available_seats": 12,
+    "status": "scheduled"
+  },
+  {
+    "origin": "الإسكندرية",
+    "destination": "القاهرة",
+    "trip_date": "2026-02-11",
+    "departure_time": "16:00",
+    "price": 200,
+    "available_seats": 6,
+    "status": "scheduled"
+  },
+  {
+    "origin": "القاهرة",
+    "destination": "طنطا",
+    "trip_date": "2026-02-12",
+    "departure_time": "07:00",
+    "price": 100,
+    "available_seats": 14,
+    "status": "scheduled"
+  },
+  {
+    "origin": "الجيزة",
+    "destination": "الفيوم",
+    "trip_date": "2026-02-12",
+    "departure_time": "10:00",
+    "price": 80,
+    "available_seats": 10,
+    "status": "scheduled"
+  },
+  {
+    "origin": "القاهرة",
+    "destination": "الزقازيق",
+    "trip_date": "2026-02-13",
+    "departure_time": "08:30",
+    "price": 120,
+    "available_seats": 11,
+    "status": "scheduled"
+  },
+  {
+    "origin": "دمياط",
+    "destination": "القاهرة",
+    "trip_date": "2026-02-14",
+    "departure_time": "06:00",
+    "price": 180,
+    "available_seats": 9,
+    "status": "scheduled"
+  }
+]
