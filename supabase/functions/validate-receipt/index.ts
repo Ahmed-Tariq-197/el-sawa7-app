@@ -55,9 +55,27 @@ Deno.serve(async (req) => {
 
     const { imageUrl, expectedAmount, reservationId }: ValidationRequest = await req.json();
 
-    if (!imageUrl) {
+    // Validate imageUrl
+    if (!imageUrl || typeof imageUrl !== "string" || imageUrl.length > 2000) {
       return new Response(
-        JSON.stringify({ error: "Missing imageUrl" }),
+        JSON.stringify({ error: "Invalid or missing imageUrl" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate expectedAmount if provided
+    if (expectedAmount !== undefined && (typeof expectedAmount !== "number" || expectedAmount <= 0 || expectedAmount > 1000000)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid expectedAmount - must be a positive number" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate reservationId format if provided (should be UUID)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (reservationId !== undefined && (typeof reservationId !== "string" || !uuidRegex.test(reservationId))) {
+      return new Response(
+        JSON.stringify({ error: "Invalid reservationId format" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -205,7 +223,7 @@ Respond in JSON format ONLY:
     console.error("Error in validate-receipt:", error);
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: "حصل خطأ، حاول مرة أخرى",
         isValid: false,
         confidence: 0,
         warnings: ["حصل خطأ أثناء التحقق"],

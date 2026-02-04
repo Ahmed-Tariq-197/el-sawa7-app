@@ -244,10 +244,10 @@ ElSawa7 - 01015556416
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Notification error:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "حصل خطأ، حاول مرة أخرى" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

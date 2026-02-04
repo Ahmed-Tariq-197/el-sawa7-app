@@ -58,12 +58,25 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Validate accuracy
-    if (accuracy_m && accuracy_m > MAX_ACCURACY_METERS) {
-      return new Response(JSON.stringify({ error: "Position accuracy too low, ignoring" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    // Validate accuracy (must be non-negative and within reasonable bounds)
+    if (accuracy_m !== undefined && accuracy_m !== null) {
+      if (typeof accuracy_m !== "number" || accuracy_m < 0 || accuracy_m > MAX_ACCURACY_METERS) {
+        return new Response(JSON.stringify({ error: "Position accuracy too low, ignoring" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    // Validate speed (must be non-negative and reasonable - max 200 km/h = ~55 m/s)
+    const MAX_SPEED_M_S = 55;
+    if (speed_m_s !== undefined && speed_m_s !== null) {
+      if (typeof speed_m_s !== "number" || speed_m_s < 0 || speed_m_s > MAX_SPEED_M_S) {
+        return new Response(JSON.stringify({ error: "Invalid speed value" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     // Verify session belongs to driver and is active
