@@ -49,6 +49,15 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Validate coordinate ranges
+    if (typeof lat !== 'number' || typeof lng !== 'number' || 
+        lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      return new Response(JSON.stringify({ error: "Invalid coordinates" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Validate accuracy
     if (accuracy_m && accuracy_m > MAX_ACCURACY_METERS) {
       return new Response(JSON.stringify({ error: "Position accuracy too low, ignoring" }), {
