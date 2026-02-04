@@ -68,8 +68,23 @@ const handler = async (req: Request): Promise<Response> => {
     const { to, message }: SMSRequest = await req.json();
 
     if (!to || !message) {
-      throw new Error("Missing required fields: to, message");
+      return new Response(
+        JSON.stringify({ error: "Missing required fields: to, message" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     }
+
+    // Validate message length (max 160 chars for SMS, or 1600 for concatenated)
+    const MAX_MESSAGE_LENGTH = 1600;
+    if (typeof message !== "string" || message.length > MAX_MESSAGE_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: "Message must be a string with max 1600 characters" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Sanitize message - remove any control characters
+    const sanitizedMessage = message.replace(/[\x00-\x1F\x7F]/g, "");
 
     // Validate Egyptian phone number format
     const cleanPhone = to.replace(/\s/g, "");
@@ -104,7 +119,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: new URLSearchParams({
         To: formattedPhone,
         From: TWILIO_PHONE_NUMBER,
-        Body: message,
+        Body: sanitizedMessage,
       }),
     });
 
@@ -124,10 +139,10 @@ const handler = async (req: Request): Promise<Response> => {
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error sending SMS:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "حصل خطأ، حاول مرة أخرى" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
