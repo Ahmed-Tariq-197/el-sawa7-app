@@ -108,6 +108,12 @@ export function useDriverTrackingSession(tripId: string) {
 
       const { latitude: lat, longitude: lng, accuracy, speed } = position.coords;
 
+      // Validate coordinate ranges
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+        console.log("Skipping position - invalid coordinates:", lat, lng);
+        return;
+      }
+
       // Skip if accuracy is too poor
       if (accuracy && accuracy > MAX_ACCURACY_METERS) {
         console.log("Skipping position - accuracy too low:", accuracy);
