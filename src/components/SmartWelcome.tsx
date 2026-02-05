@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { X } from "lucide-react";
 import { Button } from "./ui/button";
 
-// Phrase pools by user category
+// Phrase pools by user category with strong Egyptian Arabic
 const PHRASE_POOLS = {
   newUser: [
     "أهلاً بيك في عيلة ElSawa7! 🎉 أول رحلة عليك؟ يلا نبدأ!",
@@ -15,16 +15,26 @@ const PHRASE_POOLS = {
   returning: [
     "أهلاً بيك تاني! 👋 وحشتنا!",
     "رجعتلنا تاني! يلا نحجزلك رحلة؟",
+    "نورتنا تاني! نخدمك إزاي النهاردة؟",
+    "رجعت؟ تمام — عايز تشوف الرحلات المتاحة؟",
     "نوّرت! إيه الخطة النهاردة؟",
     "أهلاً بالغالي! جاهز للرحلة؟ 🚌",
   ],
   shortBreak: [
+    "يا أهلاً تاني! نفسك تروح فين الأسبوع ده؟",
+    "رجعتنا حلوة — عايزني أدوّرلك على الرحلات السريعة؟",
     "وحشتنا! 💙 فاتك رحلات حلوة... تعال نعوّضك",
     "أهلاً بيك بعد الغيبة! جاهز للرحلة القادمة؟",
     "رجعتلنا! كان فيه رحلات كتير... يلا نحجزلك واحدة",
     "فينك من زمان؟ الطريق مش زي ما كان من غيرك 🛣️",
   ],
   lapsed: [
+    "وحشتنا! آخر مرة رحت من {lastTripFrom} كانت يوم {lastTripDate}. تحب أحجزلك نفس الرحلة بسرعة؟",
+    "غاب عنّا حضورك! نقدر نبعّتلك رحلات بنفس المواعيد اللي كنت بتحبها — تبدأ منين؟",
+    "من زمان ما شفناك — عندنا رحلات جديدة للسفرة لـ {lastTripFrom}. تحب نشوفها؟",
+    "عايز نذكّرك بحجزٍ سريع؟ نعمل لك حجز تجريبي بنفس تفاصيل رحلتك السابقة.",
+    "نفتقدك! لو عايز، بنجيب لك أفضل مواعيد الرحلات اللي بتروحها — أبدأ منين؟",
+    "ترجع لنا تاني وهنسهّل عليك الحجز — عايز أبحثلك عن رحلات قريبة؟",
     "وحشتنا أوي يا {firstName}! 😢 فين كنت؟ يلا نرجع زي الأول!",
     "غبت علينا كتير! الطريق مش زي زمان من غيرك 🚌💙",
     "اشتقنالك! آخر مرة كانت من {lastTripFrom}... يلا نجدد الذكريات",
@@ -32,6 +42,9 @@ const PHRASE_POOLS = {
     "الطريق بقى وحش من غيرك! رجعتلنا أخيراً 🎉",
   ],
 };
+
+const LAPSED_DAYS_THRESHOLD = 21;
+const SHORT_BREAK_DAYS = 7;
 
 interface UserActivity {
   lastTripDate: string | null;
@@ -54,6 +67,18 @@ function interpolatePhrase(phrase: string, tokens: Record<string, string | numbe
     result = result.replace(new RegExp(`\\{${key}\\}`, "g"), String(value));
   }
   return result;
+}
+
+function formatDateArabic(dateStr: string): string {
+  try {
+    const date = new Date(dateStr);
+    return new Intl.DateTimeFormat("ar-EG", {
+      day: "numeric",
+      month: "long",
+    }).format(date);
+  } catch {
+    return dateStr;
+  }
 }
 
 export function SmartWelcome() {
@@ -133,9 +158,9 @@ export function SmartWelcome() {
       const today = new Date();
       daysSinceLast = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
 
-      if (daysSinceLast >= 21) {
+      if (daysSinceLast >= LAPSED_DAYS_THRESHOLD) {
         category = "lapsed";
-      } else if (daysSinceLast >= 7) {
+      } else if (daysSinceLast >= SHORT_BREAK_DAYS) {
         category = "shortBreak";
       } else {
         category = "returning";
@@ -150,10 +175,14 @@ export function SmartWelcome() {
 
     // Interpolate tokens
     const firstName = profile.name?.split(" ")[0] || "صديقنا";
+    const formattedDate = activity?.lastTripDate 
+      ? formatDateArabic(activity.lastTripDate) 
+      : "";
+    
     selectedPhrase = interpolatePhrase(selectedPhrase, {
       firstName,
       lastTripFrom: activity?.lastTripFrom || "رحلتك السابقة",
-      lastTripDate: activity?.lastTripDate || "",
+      lastTripDate: formattedDate,
       daysSinceLast,
     });
 

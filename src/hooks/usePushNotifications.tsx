@@ -1,12 +1,31 @@
 import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "./useAuth";
 import { toast } from "@/hooks/use-toast";
 
-const VAPID_PUBLIC_KEY = ""; // Will be generated if needed
+const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || "";
+
+function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding)
+    .replace(/-/g, "+")
+    .replace(/_/g, "/");
+  
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray.buffer as ArrayBuffer;
+}
 
 export function usePushNotifications() {
+  const { user, session } = useAuth();
   const [isSupported, setIsSupported] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission>("default");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Check if push notifications are supported
@@ -15,43 +34,142 @@ export function usePushNotifications() {
 
     if (supported) {
       setPermission(Notification.permission);
+      // Check existing subscription
+      if (user) {
+        checkExistingSubscription();
+      }
+    }
+  }, [user]);
+
+  const checkExistingSubscription = useCallback(async () => {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+      setIsSubscribed(!!subscription);
+    } catch (error) {
+      console.error("Error checking subscription:", error);
     }
   }, []);
 
-  const requestPermission = useCallback(async () => {
-    if (!isSupported) {
+  const subscribe = useCallback(async () => {
+    if (!user || !session) {
       toast({
-        title: "غير مدعوم",
-        description: "الإشعارات غير مدعومة في هذا المتصفح",
+        title: "تنبيه",
+        description: "يجب تسجيل الدخول أولاً",
         variant: "destructive",
       });
       return false;
     }
 
+    if (!isSupported) {
+      toast({
+        title: "غير مدعوم",
+        description: "المتصفح لا يدعم الإشعارات",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    setIsLoading(true);
+
     try {
+      // Request permission
       const result = await Notification.requestPermission();
       setPermission(result);
 
-      if (result === "granted") {
+      if (result !== "granted") {
         toast({
-          title: "تم تفعيل الإشعارات ✅",
-          description: "هتوصلك إشعارات لما يحصل أي تحديث",
-        });
-        return true;
-      } else if (result === "denied") {
-        toast({
-          title: "تم رفض الإشعارات",
-          description: "يمكنك تفعيلها من إعدادات المتصفح",
+          title: "رفضت السماح بالإشعارات",
+          description: "يمكنك تغيير الإعدادات من المتصفح",
           variant: "destructive",
         });
         return false;
       }
+
+      // Get service worker registration
+      const registration = await navigator.serviceWorker.ready;
+
+      // Subscribe to push
+      let subscription: PushSubscription;
+      
+      if (VAPID_PUBLIC_KEY) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        });
+      } else {
+        // Fallback without VAPID (limited functionality)
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+        });
+      }
+
+      const subscriptionJson = subscription.toJSON();
+
+      // Save to backend
+      const response = await supabase.functions.invoke("notifications-subscribe", {
+        body: {
+          endpoint: subscriptionJson.endpoint,
+          keys: {
+            p256dh: subscriptionJson.keys?.p256dh,
+            auth: subscriptionJson.keys?.auth,
+          },
+        },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      setIsSubscribed(true);
+      toast({
+        title: "تم تفعيل الإشعارات! 🔔",
+        description: "هتوصلك كل التحديثات",
+      });
+
+      return true;
+    } catch (error: any) {
+      console.error("Push subscription error:", error);
+      toast({
+        title: "فشل تفعيل الإشعارات",
+        description: error.message || "حاول مرة أخرى",
+        variant: "destructive",
+      });
       return false;
-    } catch (error) {
-      console.error("Error requesting notification permission:", error);
-      return false;
+    } finally {
+      setIsLoading(false);
     }
-  }, [isSupported]);
+  }, [user, session, isSupported]);
+
+  const unsubscribe = useCallback(async () => {
+    setIsLoading(true);
+
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+
+      if (subscription) {
+        await subscription.unsubscribe();
+      }
+
+      setIsSubscribed(false);
+      toast({
+        title: "تم إلغاء الإشعارات",
+        description: "لن تتلقى إشعارات بعد الآن",
+      });
+
+      return true;
+    } catch (error: any) {
+      console.error("Unsubscribe error:", error);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const requestPermission = useCallback(async () => {
+    return await subscribe();
+  }, [subscribe]);
 
   const showNotification = useCallback(
     (title: string, options?: NotificationOptions) => {
@@ -91,12 +209,47 @@ export function usePushNotifications() {
     [isSupported, permission]
   );
 
+  const sendTestNotification = useCallback(async () => {
+    try {
+      const response = await supabase.functions.invoke("notifications-test-send", {
+        body: {
+          title: "ElSawa7 🚌",
+          body: "إشعار تجريبي - الإشعارات تعمل بنجاح!",
+        },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      toast({
+        title: "تم إرسال الإشعار التجريبي",
+        description: response.data?.test_mode 
+          ? "تم التسجيل في وضع الاختبار" 
+          : "تحقق من الإشعارات",
+      });
+
+      return true;
+    } catch (error: any) {
+      toast({
+        title: "فشل إرسال الإشعار",
+        description: error.message,
+        variant: "destructive",
+      });
+      return false;
+    }
+  }, []);
+
   return {
     isSupported,
     isSubscribed,
     permission,
+    isLoading,
+    subscribe,
+    unsubscribe,
     requestPermission,
     showNotification,
+    sendTestNotification,
   };
 }
 

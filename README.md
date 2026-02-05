@@ -40,6 +40,12 @@ MAX_ACCURACY_METERS=200             # أقصى دقة مقبولة للموقع 
 TRACKING_RETENTION_DAYS=7           # مدة الاحتفاظ بسجلات التتبع (أيام)
 REALTIME_TRACKING=false             # تفعيل التتبع الفوري
 
+# الإشعارات
+VITE_VAPID_PUBLIC_KEY=              # مفتاح VAPID العام للإشعارات
+VAPID_PRIVATE_KEY=                  # مفتاح VAPID الخاص (للسيرفر فقط)
+PUSH_TEST_MODE=true                 # وضع اختبار الإشعارات
+PUSH_RETENTION_DAYS=7               # مدة الاحتفاظ بسجلات الإشعارات
+
 # الرسائل النصية
 SMS_TEST_MODE=true                  # وضع اختبار الرسائل النصية (افتراضي: true)
 TWILIO_ACCOUNT_SID=                 # معرف حساب Twilio
@@ -49,6 +55,17 @@ TWILIO_PHONE_NUMBER=                # رقم هاتف Twilio
 # إنشاء المدير (للسيرفر فقط)
 SETUP_ADMIN_TOKEN=                  # رمز آمن لإنشاء حسابات المديرين
 ```
+
+## إعداد Google OAuth
+
+لتفعيل تسجيل الدخول بـ Google:
+
+1. أضف عناوين الـ redirect URLs التالية في Google Cloud Console:
+   - `https://your-domain.com`
+   - `https://your-domain.com/auth/callback`
+   - للتطوير: `http://localhost:5173`
+
+2. تأكد من تفعيل OAuth في لوحة تحكم المشروع
 
 ## إنشاء حساب المدير
 
