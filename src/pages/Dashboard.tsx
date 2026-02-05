@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { NotificationToggle } from "@/components/NotificationToggle";
 import { ProfileAvatarUpload } from "@/components/ProfileAvatarUpload";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { SmartWelcome } from "@/components/SmartWelcome";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -118,6 +119,9 @@ const Dashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
+        {/* Smart Welcome Banner */}
+        <SmartWelcome />
+        
         {/* Welcome Section with Profile Upload */}
         <div className="mb-8 flex flex-col md:flex-row items-start md:items-center gap-6">
           <ProfileAvatarUpload />
@@ -126,7 +130,7 @@ const Dashboard = () => {
               أهلاً، {userName}! 👋
             </h1>
             <p className="text-muted-foreground">
-              إيه اللي عايز تعمله النهاردة؟
+              نخدمك إزاي النهاردة؟
             </p>
           </div>
         </div>

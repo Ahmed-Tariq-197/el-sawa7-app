@@ -138,7 +138,7 @@ const MyBookings = () => {
           <div className="card-soft p-12 text-center">
             <Ticket className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
             <h3 className="text-xl font-semibold text-foreground mb-2">
-              مفيش حجوزات لسه
+              معندكش حجوزات دلوقتي
             </h3>
             <p className="text-muted-foreground mb-6">
               ابدأ احجز رحلتك الأولى دلوقتي!
