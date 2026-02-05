@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.49.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -22,13 +22,17 @@ Deno.serve(async (req) => {
 
     // If auth header present, verify it's an admin
     if (authHeader?.startsWith("Bearer ")) {
-      const token = authHeader.replace("Bearer ", "");
-      const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+      const userClient = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_ANON_KEY")!,
+        { global: { headers: { Authorization: authHeader } } }
+      );
       
-      if (!claimsError && claimsData?.claims) {
-        const userId = claimsData.claims.sub;
+      const { data: { user } } = await userClient.auth.getUser();
+      
+      if (user) {
         const { data: isAdmin } = await supabase.rpc("has_role", {
-          _user_id: userId,
+          _user_id: user.id,
           _role: "admin"
         });
         
