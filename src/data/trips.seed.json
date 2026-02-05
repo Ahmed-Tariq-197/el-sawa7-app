@@ -70,5 +70,77 @@
     "price": 180,
     "available_seats": 9,
     "status": "scheduled"
+  },
+  {
+    "origin": "القاهرة",
+    "destination": "كفر الشيخ",
+    "trip_date": "2026-02-15",
+    "departure_time": "07:30",
+    "price": 150,
+    "available_seats": 14,
+    "status": "scheduled"
+  },
+  {
+    "origin": "كفر الشيخ",
+    "destination": "القاهرة",
+    "trip_date": "2026-02-15",
+    "departure_time": "15:00",
+    "price": 150,
+    "available_seats": 12,
+    "status": "scheduled"
+  },
+  {
+    "origin": "القاهرة",
+    "destination": "دسوق",
+    "trip_date": "2026-02-16",
+    "departure_time": "08:00",
+    "price": 140,
+    "available_seats": 14,
+    "status": "scheduled"
+  },
+  {
+    "origin": "دسوق",
+    "destination": "القاهرة",
+    "trip_date": "2026-02-16",
+    "departure_time": "16:00",
+    "price": 140,
+    "available_seats": 10,
+    "status": "scheduled"
+  },
+  {
+    "origin": "الإسكندرية",
+    "destination": "كفر الدوار",
+    "trip_date": "2026-02-17",
+    "departure_time": "09:00",
+    "price": 50,
+    "available_seats": 14,
+    "status": "scheduled"
+  },
+  {
+    "origin": "القاهرة",
+    "destination": "دمنهور",
+    "trip_date": "2026-02-17",
+    "departure_time": "07:00",
+    "price": 160,
+    "available_seats": 14,
+    "status": "scheduled"
+  },
+  {
+    "origin": "دمنهور",
+    "destination": "القاهرة",
+    "trip_date": "2026-02-17",
+    "departure_time": "15:30",
+    "price": 160,
+    "available_seats": 11,
+    "status": "scheduled"
+  },
+  {
+    "origin": "الإسكندرية",
+    "destination": "أبو حمص",
+    "trip_date": "2026-02-18",
+    "departure_time": "10:00",
+    "price": 60,
+    "available_seats": 14,
+    "status": "scheduled"
   }
 ]

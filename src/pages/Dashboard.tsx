@@ -130,7 +130,7 @@ const Dashboard = () => {
               أهلاً، {userName}! 👋
             </h1>
             <p className="text-muted-foreground">
-              نخدمك إزاي النهاردة؟
+              نخدمك ازاي النهرده؟
             </p>
           </div>
         </div>
@@ -170,7 +170,7 @@ const Dashboard = () => {
             <div className="card-soft p-8 text-center">
               <Bus className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
               <p className="text-muted-foreground mb-4">
-                مش عندك حجوزات حالياً
+                معندكش حجوزات دلوقتي
               </p>
               <Button variant="accent" asChild>
                 <Link to="/trips">

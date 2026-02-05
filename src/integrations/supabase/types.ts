@@ -276,6 +276,72 @@ export type Database = {
         }
         Relationships: []
       }
+      push_logs: {
+        Row: {
+          body: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          status: string
+          subscription_id: string | null
+          test_mode: boolean
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          status?: string
+          subscription_id?: string | null
+          test_mode?: boolean
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          status?: string
+          subscription_id?: string | null
+          test_mode?: boolean
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       reservations: {
         Row: {
           created_at: string
@@ -382,7 +448,7 @@ export type Database = {
           id?: string
           is_full?: boolean
           origin: string
-          price: number
+          price?: number
           status?: string
           trip_date: string
           updated_at?: string

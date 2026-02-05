@@ -32,6 +32,11 @@ const LOCATIONS = [
   "بورسعيد",
   "أسيوط",
   "الفيوم",
+  "كفر الشيخ",
+  "دسوق",
+  "كفر الدوار",
+  "دمنهور",
+  "أبو حمص",
 ];
 
 const AdminTrips = () => {
@@ -46,7 +51,7 @@ const AdminTrips = () => {
     destination: "",
     trip_date: "",
     departure_time: "",
-    price: 50,
+    price: 150,
     available_seats: 14,
   });
 
@@ -59,7 +64,7 @@ const AdminTrips = () => {
       destination: "",
       trip_date: "",
       departure_time: "",
-      price: 50,
+      price: 150,
       available_seats: 14,
     });
     setIsDialogOpen(false);
@@ -214,18 +219,51 @@ const AdminTrips = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>السعر (ج.م)</Label>
-                  <Input
-                    type="number"
-                    required
-                    min={1}
-                    value={formData.price}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        price: parseInt(e.target.value),
-                      })
-                    }
-                  />
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          price: Math.max(10, formData.price - 10),
+                        })
+                      }
+                    >
+                      -10
+                    </Button>
+                    <Input
+                      type="number"
+                      required
+                      min={10}
+                      step={10}
+                      value={formData.price}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          price: parseInt(e.target.value) || 150,
+                        })
+                      }
+                      className="text-center"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          price: formData.price + 10,
+                        })
+                      }
+                    >
+                      +10
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    الافتراضي: 150 ج.م | الخطوة: +10
+                  </p>
                 </div>
                 <div>
                   <Label>المقاعد المتاحة</Label>
