@@ -162,6 +162,7 @@ export type Database = {
       }
       driver_tracking_sessions: {
         Row: {
+          allows_background: boolean | null
           consent_at: string
           created_at: string | null
           driver_id: string
@@ -172,6 +173,7 @@ export type Database = {
           trip_id: string
         }
         Insert: {
+          allows_background?: boolean | null
           consent_at: string
           created_at?: string | null
           driver_id: string
@@ -182,6 +184,7 @@ export type Database = {
           trip_id: string
         }
         Update: {
+          allows_background?: boolean | null
           consent_at?: string
           created_at?: string | null
           driver_id?: string
@@ -464,6 +467,39 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_set_role: {
+        Args: {
+          p_role: Database["public"]["Enums"]["app_role"]
+          p_user_id: string
+        }
+        Returns: boolean
+      }
+      allocate_seats_atomic: {
+        Args: {
+          p_payment_proof_url?: string
+          p_payment_transaction_id?: string
+          p_seats_count: number
+          p_trip_id: string
+          p_user_id: string
+        }
+        Returns: {
+          error_code: string
+          error_message: string
+          queue_position: number
+          reservation_id: string
+          success: boolean
+        }[]
+      }
+      driver_view_for_trip: {
+        Args: { p_trip_id: string }
+        Returns: {
+          order_number: number
+          phone: string
+          reservation_id: string
+          seats: number
+          status: string
+        }[]
+      }
       get_driver_trip_passengers: {
         Args: { trip_uuid: string }
         Returns: {
@@ -477,6 +513,16 @@ export type Database = {
         }[]
       }
       get_passenger_name: { Args: { passenger_id: string }; Returns: string }
+      get_tracking_positions_secure: {
+        Args: { p_limit?: number; p_session_id: string }
+        Returns: {
+          accuracy_m: number
+          lat: number
+          lng: number
+          sent_at: string
+          speed_m_s: number
+        }[]
+      }
       get_trip_queue: {
         Args: { trip_uuid: string }
         Returns: {
@@ -493,6 +539,27 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      log_action: {
+        Args: {
+          p_action: string
+          p_new_data?: Json
+          p_old_data?: Json
+          p_record_id?: string
+          p_table_name: string
+        }
+        Returns: string
+      }
+      passenger_queue_view: {
+        Args: { p_trip_id: string }
+        Returns: {
+          avatar_url: string
+          order_number: number
+          passenger_name: string
+          reservation_id: string
+          seats: number
+          status: string
+        }[]
       }
       purge_old_tracking_positions: {
         Args: { retention_days?: number }

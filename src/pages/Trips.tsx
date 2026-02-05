@@ -6,13 +6,12 @@ import {
   Clock,
   Users,
   Calendar,
-  Search,
   Filter,
   ArrowLeft,
+  AlertTriangle,
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -20,9 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAvailableTrips, Trip } from "@/hooks/useTrips";
+import { useAvailableTripsWithFallback, Trip } from "@/hooks/useTripsFallback";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const LOCATIONS = [
   "القاهرة",
@@ -40,7 +40,7 @@ const LOCATIONS = [
 const Trips = () => {
   const [origin, setOrigin] = useState<string>("");
   const [destination, setDestination] = useState<string>("");
-  const { data: trips, isLoading, error } = useAvailableTrips(
+  const { data, isLoading, error, refetch } = useAvailableTripsWithFallback(
     origin || undefined,
     destination || undefined
   );
@@ -53,7 +53,7 @@ const Trips = () => {
         "postgres_changes",
         { event: "*", schema: "public", table: "trips" },
         () => {
-          // Refetch trips when changes occur
+          refetch();
         }
       )
       .subscribe();
@@ -61,7 +61,7 @@ const Trips = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [refetch]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -81,6 +81,9 @@ const Trips = () => {
     return `${displayHour}:${minutes} ${period}`;
   };
 
+  const trips = data?.trips || [];
+  const isSeedData = data?.isSeedData || false;
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
@@ -93,6 +96,16 @@ const Trips = () => {
             اختار رحلتك واحجز مكانك دلوقتي
           </p>
         </div>
+
+        {/* Seed Data Notice */}
+        {isSeedData && (
+          <Alert className="mb-6 border-accent/50 bg-accent/10">
+            <AlertTriangle className="h-4 w-4 text-accent" />
+            <AlertDescription className="text-accent-foreground">
+              هذه بيانات اختبار — ستظهر الرحلات الحقيقية بعد تفعيل لوحة السوّاح
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Filters */}
         <div className="card-soft p-6 mb-8">
@@ -162,8 +175,11 @@ const Trips = () => {
         ) : error ? (
           <div className="text-center py-12">
             <p className="text-destructive">حصل خطأ في تحميل الرحلات</p>
+            <Button variant="outline" onClick={() => refetch()} className="mt-4">
+              حاول تاني
+            </Button>
           </div>
-        ) : !trips || trips.length === 0 ? (
+        ) : trips.length === 0 ? (
           <div className="card-soft p-12 text-center">
             <Bus className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
             <h3 className="text-xl font-semibold text-foreground mb-2">
@@ -176,7 +192,13 @@ const Trips = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {trips.map((trip) => (
-              <TripCard key={trip.id} trip={trip} formatDate={formatDate} formatTime={formatTime} />
+              <TripCard 
+                key={trip.id} 
+                trip={trip} 
+                formatDate={formatDate} 
+                formatTime={formatTime}
+                isSeedData={trip.isSeedData || false}
+              />
             ))}
           </div>
         )}
@@ -189,9 +211,10 @@ interface TripCardProps {
   trip: Trip;
   formatDate: (date: string) => string;
   formatTime: (time: string) => string;
+  isSeedData: boolean;
 }
 
-function TripCard({ trip, formatDate, formatTime }: TripCardProps) {
+function TripCard({ trip, formatDate, formatTime, isSeedData }: TripCardProps) {
   return (
     <div className="card-soft overflow-hidden hover:shadow-glow transition-smooth group">
       <div className="bg-gradient-primary p-4">
@@ -248,23 +271,33 @@ function TripCard({ trip, formatDate, formatTime }: TripCardProps) {
         </div>
 
         {/* Action */}
-        <Button
-          variant={trip.available_seats > 0 ? "hero" : "outline"}
-          className="w-full"
-          asChild
-          disabled={trip.available_seats === 0}
-        >
-          <Link to={`/book/${trip.id}`}>
-            {trip.available_seats > 0 ? (
-              <>
-                احجز الآن
-                <ArrowLeft className="h-4 w-4 mr-2" />
-              </>
-            ) : (
-              "الحجز خلص"
-            )}
-          </Link>
-        </Button>
+        {isSeedData ? (
+          <Button
+            variant="outline"
+            className="w-full"
+            disabled
+          >
+            بيانات تجريبية
+          </Button>
+        ) : (
+          <Button
+            variant={trip.available_seats > 0 ? "hero" : "outline"}
+            className="w-full"
+            asChild
+            disabled={trip.available_seats === 0}
+          >
+            <Link to={`/book/${trip.id}`}>
+              {trip.available_seats > 0 ? (
+                <>
+                  احجز الآن
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                </>
+              ) : (
+                "الحجز خلص"
+              )}
+            </Link>
+          </Button>
+        )}
       </div>
     </div>
   );

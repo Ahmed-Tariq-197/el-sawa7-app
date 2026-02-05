@@ -1,1 +1,46 @@
 project_id = "jodxtnjkmnwdwdbdubti"
+
+[functions.reservations-create]
+verify_jwt = false
+
+[functions.ratings-create]
+verify_jwt = false
+
+[functions.admin-create]
+verify_jwt = false
+
+[functions.sms-test]
+verify_jwt = false
+
+[functions.storage-signed-url]
+verify_jwt = false
+
+[functions.tracking-start]
+verify_jwt = false
+
+[functions.tracking-end]
+verify_jwt = false
+
+[functions.tracking-position]
+verify_jwt = false
+
+[functions.tracking-session]
+verify_jwt = false
+
+[functions.tracking-positions]
+verify_jwt = false
+
+[functions.validate-receipt]
+verify_jwt = false
+
+[functions.send-sms]
+verify_jwt = false
+
+[functions.notify-reservation]
+verify_jwt = false
+
+[functions.purge-tracking-positions]
+verify_jwt = false
+
+[functions.send-password-reset]
+verify_jwt = false
