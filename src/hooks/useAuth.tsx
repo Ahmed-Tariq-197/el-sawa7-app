@@ -93,37 +93,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    let mounted = true;
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("Auth state change:", event);
+        console.log("Auth state change:", event, session ? "session exists" : "no session");
+        
+        if (!mounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
 
         if (session?.user) {
           // Use setTimeout to avoid Supabase deadlock
-          setTimeout(() => fetchUserData(session.user.id), 0);
+          setTimeout(() => {
+            if (mounted) fetchUserData(session.user.id);
+          }, 0);
         } else {
           setProfile(null);
           setDriverProfile(null);
           setRoles([]);
         }
-        setIsLoading(false);
+        
+        // Only set loading to false after we've processed the auth state
+        if (event !== 'INITIAL_SESSION') {
+          setIsLoading(false);
+        }
       }
     );
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      
       console.log("Initial session check:", session ? "found" : "none");
       setSession(session);
       setUser(session?.user ?? null);
+      
       if (session?.user) {
-        fetchUserData(session.user.id);
+        fetchUserData(session.user.id).finally(() => {
+          if (mounted) setIsLoading(false);
+        });
+      } else {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {

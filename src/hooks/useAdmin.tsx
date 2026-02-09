@@ -202,7 +202,19 @@ export function useApproveDriver() {
 
   return useMutation({
     mutationFn: async (driverProfileId: string) => {
-      const { error } = await supabase
+      // First, get the user_id from the driver profile
+      const { data: driverProfile, error: fetchError } = await supabase
+        .from("driver_profiles")
+        .select("user_id")
+        .eq("id", driverProfileId)
+        .single();
+
+      if (fetchError || !driverProfile) {
+        throw new Error("فشل في العثور على بيانات السائق");
+      }
+
+      // Update driver_profiles to set is_approved = true
+      const { error: updateError } = await supabase
         .from("driver_profiles")
         .update({
           is_approved: true,
@@ -210,14 +222,27 @@ export function useApproveDriver() {
         })
         .eq("id", driverProfileId);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
+
+      // Add driver role to user_roles table (upsert to avoid duplicates)
+      const { error: roleError } = await supabase
+        .from("user_roles")
+        .upsert(
+          { user_id: driverProfile.user_id, role: "driver" as const },
+          { onConflict: "user_id,role" }
+        );
+
+      if (roleError) {
+        console.error("Error adding driver role:", roleError);
+        // Don't throw - driver profile is already approved, role add is secondary
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "drivers"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "stats"] });
       toast({
         title: "تم قبول السائق ✅",
-        description: "السائق أصبح نشط الآن",
+        description: "السائق أصبح نشط الآن ويمكنه استلام رحلات",
       });
     },
     onError: (error: Error) => {
