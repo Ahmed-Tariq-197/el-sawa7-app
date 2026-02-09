@@ -120,12 +120,12 @@ const Trips = () => {
                 <MapPin className="inline h-4 w-4 ml-1" />
                 من
               </label>
-              <Select value={origin} onValueChange={setOrigin}>
+              <Select value={origin || "all"} onValueChange={(val) => setOrigin(val === "all" ? "" : val)}>
                 <SelectTrigger>
                   <SelectValue placeholder="اختر نقطة الانطلاق" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">الكل</SelectItem>
+                  <SelectItem value="all">الكل</SelectItem>
                   {LOCATIONS.map((loc) => (
                     <SelectItem key={loc} value={loc}>
                       {loc}
@@ -140,12 +140,12 @@ const Trips = () => {
                 <MapPin className="inline h-4 w-4 ml-1" />
                 إلى
               </label>
-              <Select value={destination} onValueChange={setDestination}>
+              <Select value={destination || "all"} onValueChange={(val) => setDestination(val === "all" ? "" : val)}>
                 <SelectTrigger>
                   <SelectValue placeholder="اختر الوجهة" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">الكل</SelectItem>
+                  <SelectItem value="all">الكل</SelectItem>
                   {LOCATIONS.map((loc) => (
                     <SelectItem key={loc} value={loc}>
                       {loc}

@@ -18,7 +18,10 @@ const DriverPending = () => {
           <h1 className="text-2xl font-bold text-foreground mb-2">
             أهلاً {profile?.name} 👋
           </h1>
-          <p className="text-lg text-muted-foreground mb-8">
+          <p className="text-lg text-muted-foreground mb-4">
+            شكراً! طلب تسجيلك اتبعت للسواّح — في انتظار تأكيد دخولك
+          </p>
+          <p className="text-sm text-muted-foreground mb-8">
             حسابك كسائق في انتظار موافقة الإدارة
           </p>
 
