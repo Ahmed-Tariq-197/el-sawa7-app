@@ -13,11 +13,14 @@ export function GoogleSignInButton({ className }: GoogleSignInButtonProps) {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
+      sessionStorage.setItem("oauth_pending_redirect", "/dashboard");
+
       const { error } = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin,
       });
 
       if (error) {
+        sessionStorage.removeItem("oauth_pending_redirect");
         throw error;
       }
     } catch (error: any) {

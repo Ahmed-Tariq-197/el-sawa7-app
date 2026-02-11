@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
 import Logo from "@/components/Logo";
@@ -7,15 +7,25 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
+import { AppleSignInButton } from "@/components/AppleSignInButton";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/hooks/useAuth";
 const Login = () => {
   const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,6 +152,7 @@ const Login = () => {
             </div>
 
             <GoogleSignInButton className="w-full" />
+            <AppleSignInButton className="w-full" />
           </form>
 
           <p className="mt-8 text-center text-muted-foreground">

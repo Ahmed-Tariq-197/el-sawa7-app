@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, Phone, Car, Users, ArrowLeft } from "lucide-react";
 import Logo from "@/components/Logo";
@@ -7,11 +7,21 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
+import { AppleSignInButton } from "@/components/AppleSignInButton";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/hooks/useAuth";
 
 const Register = () => {
   const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuth();
   const [searchParams] = useSearchParams();
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, authLoading, navigate]);
   const initialRole = searchParams.get("role") === "driver" ? "driver" : "passenger";
   
   const [showPassword, setShowPassword] = useState(false);
@@ -307,6 +317,7 @@ const Register = () => {
             </div>
 
             <GoogleSignInButton className="w-full" />
+            <AppleSignInButton className="w-full" />
           </form>
 
           <p className="mt-6 text-center text-muted-foreground text-sm">
