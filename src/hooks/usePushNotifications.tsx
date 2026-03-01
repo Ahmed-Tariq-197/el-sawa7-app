@@ -70,6 +70,15 @@ export function usePushNotifications() {
       return false;
     }
 
+    if (!VAPID_PUBLIC_KEY) {
+      toast({
+        title: "تعذر تفعيل الإشعارات",
+        description: "الرجاء إعلام الإدارة لتفعيل مفتاح الإشعارات",
+        variant: "destructive",
+      });
+      return false;
+    }
+
     setIsLoading(true);
 
     try {
