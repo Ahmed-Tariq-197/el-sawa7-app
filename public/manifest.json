@@ -28,5 +28,6 @@
     }
   ],
   "categories": ["transportation", "education"],
-  "orientation": "portrait-primary"
+  "orientation": "portrait-primary",
+  "gcm_sender_id": "103953800507"
 }

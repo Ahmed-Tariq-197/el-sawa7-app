@@ -44,7 +44,7 @@ export function usePushNotifications() {
   const checkExistingSubscription = useCallback(async () => {
     try {
       const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
+      const subscription = await (registration as any).pushManager.getSubscription();
       setIsSubscribed(!!subscription);
     } catch (error) {
       console.error("Error checking subscription:", error);
@@ -88,18 +88,19 @@ export function usePushNotifications() {
 
       // Get service worker registration
       const registration = await navigator.serviceWorker.ready;
+      const mgr = (registration as any).pushManager;
 
       // Subscribe to push
       let subscription: PushSubscription;
       
       if (VAPID_PUBLIC_KEY) {
-        subscription = await registration.pushManager.subscribe({
+        subscription = await mgr.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
         });
       } else {
         // Fallback without VAPID (limited functionality)
-        subscription = await registration.pushManager.subscribe({
+        subscription = await mgr.subscribe({
           userVisibleOnly: true,
         });
       }
@@ -146,7 +147,7 @@ export function usePushNotifications() {
 
     try {
       const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
+      const subscription = await (registration as any).pushManager.getSubscription();
 
       if (subscription) {
         await subscription.unsubscribe();
